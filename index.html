@@ -1,13 +1,112 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>workflow-debugger</title>
-    <script type="module" crossorigin src="https://pub-b8e37ddf016b47d7b2ab52a7c538dce8.r2.dev/debugger.v0.0.4.js"></script>
-    <link rel="stylesheet" crossorigin href="https://pub-b8e37ddf016b47d7b2ab52a7c538dce8.r2.dev/debugger.v0.0.4.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Comparison Tool</title>
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+</head>
+<body>
+
+<!-- ---------- Header ---------- -->
+<div class="header">
+    <h1>AI Image Comparison Tool</h1>
+    <p class="subtitle">
+        Compare two images quickly – pixel by pixel, feature by feature, or semantically using AI.
+    </p>
+</div>
+
+<!-- ---------- How to Compare Images ---------- -->
+<div class="how-it-works">
+    <h2>How to Compare Images?</h2>
+    <ol>
+        <li>Upload the two images you want to compare.</li>
+        <li>Click "Choose File" to select the files. You can also drag & drop.</li>
+        <li>Click "Compare Images" to start.</li>
+        <li>View the compared images, similarity results, and ORB keypoints visuals below.</li>
+    </ol>
+</div>
+
+<!-- ---------- Upload Section ---------- -->
+<div class="upload-section">
+    <h2>Upload Images</h2>
+    <p>Click or drag & drop to upload two images for comparison.</p>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div class="image-area">
+            <!-- Image 1 -->
+            <div class="upload-box" onclick="document.getElementById('image1').click()">
+                <input type="file" id="image1" name="image1" accept="image/*" onchange="previewImage(event,'preview1','clear1')" style="display:none;">
+                <img id="preview1" src="" alt="">
+                <span class="upload-text">Upload Image 1</span>
+                <button type="button" class="clear-btn" id="clear1" onclick="clearImage('image1','preview1','clear1')" style="display:none;">Clear</button>
+            </div>
+            <!-- Image 2 -->
+            <div class="upload-box" onclick="document.getElementById('image2').click()">
+                <input type="file" id="image2" name="image2" accept="image/*" onchange="previewImage(event,'preview2','clear2')" style="display:none;">
+                <img id="preview2" src="" alt="">
+                <span class="upload-text">Upload Image 2</span>
+                <button type="button" class="clear-btn" id="clear2" onclick="clearImage('image2','preview2','clear2')" style="display:none;">Clear</button>
+            </div>
+        </div>
+        <input type="submit" value="Compare Images" class="submit-btn">
+    </form>
+</div>
+
+<!-- ---------- Results Section ---------- -->
+{% if similarity %}
+<div class="results">
+    <h2>Comparison Results</h2>
+    <div class="result-grid">
+        <div class="metric-card"><strong>CLIP Semantic:</strong> {{ similarity.clip }}%</div>
+        <div class="metric-card"><strong>MSE:</strong> {{ similarity.mse }}</div>
+        <div class="metric-card"><strong>SSIM:</strong> {{ similarity.ssim }}%</div>
+        <div class="metric-card"><strong>Histogram Similarity:</strong> {{ similarity.histogram }}%</div>
+        <div class="metric-card"><strong>ORB Match:</strong> {{ similarity.orb }}%</div>
+    </div>
+    <div class="explanation-card">
+        <h3>Explanation:</h3>
+        <p>{{ similarity.explanation }}</p>
+    </div>
+
+    <!-- ---------- ORB Visuals ---------- -->
+    <div class="visuals">
+        <h3>Visual Analysis (ORB Keypoints)</h3>
+        <div class="visual-grid">
+            <div class="visual-card">
+                <h4>Image 1 ORB Keypoints</h4>
+                <img src="data:image/png;base64,{{ similarity.orb_img1 }}" alt="ORB 1">
+            </div>
+            <div class="visual-card">
+                <h4>Image 2 ORB Keypoints</h4>
+                <img src="data:image/png;base64,{{ similarity.orb_img2 }}" alt="ORB 2">
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ---------- Footer ---------- -->
+<div class="footer">
+    &copy; 2025 AI Image Comparison Tool | Professional CLIP Based Image Analysis
+</div>
+
+<!-- ---------- JS for Preview & Clear ---------- -->
+<script>
+function previewImage(event, previewId, clearBtnId) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        document.getElementById(previewId).src = reader.result;
+        document.getElementById(clearBtnId).style.display = 'block';
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}
+
+function clearImage(inputId, previewId, clearBtnId) {
+    document.getElementById(inputId).value = "";
+    document.getElementById(previewId).src = "";
+    document.getElementById(clearBtnId).style.display = 'none';
+}
+</script>
+
+</body>
 </html>
+
